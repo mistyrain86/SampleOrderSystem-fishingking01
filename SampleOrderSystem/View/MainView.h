@@ -2,11 +2,15 @@
 
 class SampleController;
 class OrderController;
+class ProductionController;
+class ReleaseController;
 
 class MainView {
 public:
-    void setSampleController(SampleController* ctrl);
-    void setOrderController(OrderController* ctrl);
+    void setSampleController(SampleController*     ctrl);
+    void setOrderController(OrderController*       ctrl);
+    void setProductionController(ProductionController* ctrl);
+    void setReleaseController(ReleaseController*   ctrl);
     void run();
 
 private:
@@ -15,6 +19,8 @@ private:
     int  readChoice()  const;
     void dispatch(int choice);
 
-    SampleController* sampleCtrl_ = nullptr;
-    OrderController*  orderCtrl_  = nullptr;
+    SampleController*     sampleCtrl_     = nullptr;
+    OrderController*      orderCtrl_      = nullptr;
+    ProductionController* productionCtrl_ = nullptr;
+    ReleaseController*    releaseCtrl_    = nullptr;
 };

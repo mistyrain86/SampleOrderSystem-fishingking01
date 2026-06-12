@@ -181,6 +181,14 @@
     <ClCompile Include="Test\OrderControllerTest.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)'=='Release'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="Test\ProductionControllerTest.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)'=='Release'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="Test\ReleaseControllerTest.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)'=='Release'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="Controller\ProductionController.cpp" />
+    <ClCompile Include="Controller\ReleaseController.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="View\SplashView.h" />
@@ -193,6 +201,8 @@
     <ClInclude Include="View\ReleaseView.h" />
     <ClInclude Include="Controller\SampleController.h" />
     <ClInclude Include="Controller\OrderController.h" />
+    <ClInclude Include="Controller\ProductionController.h" />
+    <ClInclude Include="Controller\ReleaseController.h" />
     <ClInclude Include="Model\ISampleRepository.h" />
     <ClInclude Include="Model\SampleRepository.h" />
     <ClInclude Include="Model\IOrderRepository.h" />

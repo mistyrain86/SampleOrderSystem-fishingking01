@@ -93,7 +93,7 @@ void ApprovalView::show() {
         } else {
             int shortage    = selected.quantity - sample.pureQuantity;
             int reqProd     = OrderController::calcRequiredProduction(
-                                  selected.quantity, sample.yield);
+                                  shortage, sample.yield);
             int estimateMin = static_cast<int>(std::ceil(sample.cycleTime * reqProd));
             std::cout << "  재고 판정   가용 재고 " << sample.pureQuantity
                       << " ea < 주문 " << selected.quantity

@@ -59,8 +59,12 @@ ApproveResult OrderController::approveOrder(const std::string& orderId) {
         orderRepo_.update(order);
         return ApproveResult::SUCCESS_CONFIRMED;
     } else {
-        order.requiredProduction  = calcRequiredProduction(order.quantity, sample.yield);
-        sample.reservedQuantity  += order.quantity;
+        int shortage                  = order.quantity - sample.pureQuantity;
+        order.requiredProduction      = calcRequiredProduction(shortage, sample.yield);
+        order.productionShortage      = shortage;
+        order.productionStartedAt     = clock_.now();
+        sample.pureQuantity           = 0;   // 가용 재고 전량 소진 → 이중 주문 방지
+        sample.reservedQuantity      += order.quantity;
         order.status = OrderStatus::PRODUCING;
         sampleRepo_.update(sample);
         orderRepo_.update(order);

@@ -208,8 +208,9 @@ TEST_F(OrderControllerTest, ApproveOrder_CaseB_ReservedQtyImmediate) {
     EXPECT_EQ(capturedSample.reservedQuantity, 210);
 }
 
-// T5-11: 케이스 B — pureQty 불변 확인
-TEST_F(OrderControllerTest, ApproveOrder_CaseB_PureQtyUnchanged) {
+// T5-11: 케이스 B — pureQty 전량 소진 (이중 주문 방지)
+//         pureQty=30 < qty=200 → 30 ea 모두 reserved 로 이동 → pureQty=0
+TEST_F(OrderControllerTest, ApproveOrder_CaseB_PureQtyConsumed) {
     Order  o = makeOrderO("ORD0001", "S-001", 200, OrderStatus::RESERVED);
     Sample s = makeSampleO("S-001", 30);
     EXPECT_CALL(orderRepo,  findById("ORD0001")).WillOnce(Return(o));
@@ -220,11 +221,12 @@ TEST_F(OrderControllerTest, ApproveOrder_CaseB_PureQtyUnchanged) {
     EXPECT_CALL(sampleRepo, update(_)).WillOnce(DoAll(SaveArg<0>(&capturedSample), Return(true)));
 
     ctrl.approveOrder("ORD0001");
-    EXPECT_EQ(capturedSample.pureQuantity, 30);
+    EXPECT_EQ(capturedSample.pureQuantity, 0);
 }
 
-// T5-12: 케이스 B — requiredProduction 산정 확인
-//         ceil(200 / (0.85 * 0.9)) = ceil(200 / 0.765) = ceil(261.44) = 262
+// T5-12: 케이스 B — requiredProduction 산정 확인 (부족분 기준)
+//         pureQty=30, qty=200, 부족분=170, yield=0.85
+//         ceil(170 / (0.85 * 0.9)) = ceil(170 / 0.765) = ceil(222.22) = 223
 TEST_F(OrderControllerTest, ApproveOrder_CaseB_RequiredProduction) {
     Order  o = makeOrderO("ORD0001", "S-001", 200, OrderStatus::RESERVED);
     Sample s = makeSampleO("S-001", 30, 0.85);
@@ -236,7 +238,38 @@ TEST_F(OrderControllerTest, ApproveOrder_CaseB_RequiredProduction) {
     EXPECT_CALL(orderRepo, update(_)).WillOnce(DoAll(SaveArg<0>(&capturedOrder), Return(true)));
 
     ctrl.approveOrder("ORD0001");
-    EXPECT_EQ(capturedOrder.requiredProduction, 262);
+    EXPECT_EQ(capturedOrder.requiredProduction, 223);
+}
+
+// T5-12a: 케이스 B — productionShortage = qty - pureQty 저장 확인
+//          pureQty=30, qty=200 → shortage=170
+TEST_F(OrderControllerTest, ApproveOrder_CaseB_ProductionShortageStored) {
+    Order  o = makeOrderO("ORD0001", "S-001", 200, OrderStatus::RESERVED);
+    Sample s = makeSampleO("S-001", 30);
+    EXPECT_CALL(orderRepo,  findById("ORD0001")).WillOnce(Return(o));
+    EXPECT_CALL(sampleRepo, findById("S-001"))  .WillOnce(Return(s));
+    EXPECT_CALL(sampleRepo, update(_)).WillOnce(Return(true));
+
+    Order capturedOrder{};
+    EXPECT_CALL(orderRepo, update(_)).WillOnce(DoAll(SaveArg<0>(&capturedOrder), Return(true)));
+
+    ctrl.approveOrder("ORD0001");
+    EXPECT_EQ(capturedOrder.productionShortage, 170);
+}
+
+// T5-12b: 케이스 B — productionStartedAt = clock_.now() 로 설정
+TEST_F(OrderControllerTest, ApproveOrder_CaseB_SetsProductionStartedAt) {
+    Order  o = makeOrderO("ORD0001", "S-001", 200, OrderStatus::RESERVED);
+    Sample s = makeSampleO("S-001", 30);
+    EXPECT_CALL(orderRepo,  findById("ORD0001")).WillOnce(Return(o));
+    EXPECT_CALL(sampleRepo, findById("S-001"))  .WillOnce(Return(s));
+    EXPECT_CALL(sampleRepo, update(_)).WillOnce(Return(true));
+
+    Order capturedOrder{};
+    EXPECT_CALL(orderRepo, update(_)).WillOnce(DoAll(SaveArg<0>(&capturedOrder), Return(true)));
+
+    ctrl.approveOrder("ORD0001");
+    EXPECT_EQ(capturedOrder.productionStartedAt, "2026-06-12 09:00:00");
 }
 
 // T5-13: RESERVED 아닌 주문 승인 시도 → FAILED

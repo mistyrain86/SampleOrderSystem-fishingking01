@@ -7,6 +7,8 @@
 #include "ReleaseView.h"
 #include "Controller/SampleController.h"
 #include "Controller/OrderController.h"
+#include "Controller/ProductionController.h"
+#include "Controller/ReleaseController.h"
 #include <iostream>
 #include <string>
 #include <ctime>
@@ -18,6 +20,14 @@ void MainView::setSampleController(SampleController* ctrl) {
 
 void MainView::setOrderController(OrderController* ctrl) {
     orderCtrl_ = ctrl;
+}
+
+void MainView::setProductionController(ProductionController* ctrl) {
+    productionCtrl_ = ctrl;
+}
+
+void MainView::setReleaseController(ReleaseController* ctrl) {
+    releaseCtrl_ = ctrl;
 }
 
 void MainView::run() {
@@ -41,16 +51,17 @@ void MainView::printHeader() const {
     char timeStr[32];
     std::strftime(timeStr, sizeof(timeStr), "%Y-%m-%d %H:%M:%S", &tmNow);
 
-    int sampleCount    = sampleCtrl_ ? sampleCtrl_->getSampleCount()    : 0;
-    int totalInventory = sampleCtrl_ ? sampleCtrl_->getTotalInventory() : 0;
-    int orderCount     = orderCtrl_  ? orderCtrl_->getOrderCount()      : 0;
+    int sampleCount      = sampleCtrl_     ? sampleCtrl_->getSampleCount()        : 0;
+    int totalInventory   = sampleCtrl_     ? sampleCtrl_->getTotalInventory()      : 0;
+    int orderCount       = orderCtrl_      ? orderCtrl_->getOrderCount()           : 0;
+    int productionCount  = productionCtrl_ ? productionCtrl_->getProductionCount() : 0;
 
     std::cout << "================================================================\n";
     std::cout << "  S-Semi 반도체 시료 생산주문관리 시스템\n";
     std::cout << "================================================================\n";
     std::cout << "  시스템 현황   " << timeStr << "\n\n";
     std::cout << "  등록 시료   " << sampleCount    << " 종      총 재고   " << totalInventory << " ea\n";
-    std::cout << "  전체 주문   " << orderCount     << " 건      생산라인    0 건 대기\n";
+    std::cout << "  전체 주문   " << orderCount     << " 건      생산라인  " << productionCount << " 건 대기\n";
     std::cout << "----------------------------------------------------------------\n";
 }
 
@@ -82,8 +93,18 @@ void MainView::dispatch(int choice) {
         if (orderCtrl_ && sampleCtrl_) { ApprovalView v(*orderCtrl_, *sampleCtrl_); v.show(); }
         break;
     case 4: { MonitoringView v; v.show(); break; }
-    case 5: { ProductionView v; v.show(); break; }
-    case 6: { ReleaseView v;    v.show(); break; }
+    case 5:
+        if (productionCtrl_ && sampleCtrl_) {
+            ProductionView v(*productionCtrl_, *sampleCtrl_);
+            v.show();
+        }
+        break;
+    case 6:
+        if (releaseCtrl_ && sampleCtrl_) {
+            ReleaseView v(*releaseCtrl_, *sampleCtrl_);
+            v.show();
+        }
+        break;
     default:
         std::cout << "\n  잘못된 선택입니다. 다시 입력해 주세요.\n";
         std::cout << "  Enter를 눌러 계속...";

@@ -15,6 +15,8 @@ int main(int argc, char** argv) {
 #include "Util/DummyDataGenerator.h"
 #include "Controller/SampleController.h"
 #include "Controller/OrderController.h"
+#include "Controller/ProductionController.h"
+#include "Controller/ReleaseController.h"
 #include "View/SplashView.h"
 #include "View/MainView.h"
 
@@ -28,8 +30,10 @@ int main() {
 
     DummyDataGenerator::populate(sampleRepo, clock);
 
-    SampleController sampleCtrl(sampleRepo, clock);
-    OrderController  orderCtrl(orderRepo, sampleRepo, clock);
+    SampleController     sampleCtrl(sampleRepo, clock);
+    OrderController      orderCtrl(orderRepo, sampleRepo, clock);
+    ProductionController productionCtrl(orderRepo, sampleRepo, clock);
+    ReleaseController    releaseCtrl(orderRepo, sampleRepo, clock);
 
     SplashView splash;
     splash.show();
@@ -37,6 +41,8 @@ int main() {
     MainView mainView;
     mainView.setSampleController(&sampleCtrl);
     mainView.setOrderController(&orderCtrl);
+    mainView.setProductionController(&productionCtrl);
+    mainView.setReleaseController(&releaseCtrl);
     mainView.run();
 
     return 0;
