@@ -371,13 +371,79 @@ data/orders.json
 ```
 View  ──▶  Controller  ──▶  Repository  ──▶  JSON 파일
                    │
+              IClock (주입)
+                   │
                 (Domain Model)
                Sample / Order
 ```
 
 - **View**: 화면 출력 및 사용자 입력만 담당. 비즈니스 로직 금지
-- **Controller**: 비즈니스 로직 수행. Repository를 통해서만 데이터 접근
+- **Controller**: 비즈니스 로직 수행. Repository + IClock을 통해서만 외부 의존성 접근
 - **Repository**: 데이터 CRUD 및 JSON 직렬화/역직렬화만 담당
+
+### 시간 추상화 (IClock)
+
+현재 시각을 직접 사용하면 테스트가 비결정적(non-deterministic)이 됩니다.  
+모든 시각 기록은 `IClock` 인터페이스를 통해 주입합니다.
+
+```cpp
+// Util/IClock.h
+class IClock {
+public:
+    virtual ~IClock() = default;
+    virtual std::string now() const = 0;  // "YYYY-MM-DD HH:MM:SS"
+};
+
+// 프로덕션: Util/SystemClock.h
+class SystemClock : public IClock {
+public:
+    std::string now() const override;     // std::chrono 기반 실제 시각
+};
+
+// 테스트용 (테스트 프로젝트 내)
+class FakeClock : public IClock {
+public:
+    explicit FakeClock(std::string t) : time_(std::move(t)) {}
+    std::string now() const override { return time_; }
+    void setTime(const std::string& t) { time_ = t; }
+private:
+    std::string time_;
+};
+```
+
+`IClock`을 필요로 하는 Controller는 생성자에서 `IClock&`를 인자로 받습니다:
+```cpp
+OrderController(OrderRepository&, SampleRepository&, IClock&);
+ProductionController(OrderRepository&, SampleRepository&, IClock&);
+ReleaseController(OrderRepository&, IClock&);
+```
+
+### 앱 시작 화면 (SplashView)
+
+앱 최초 실행 시 메인 메뉴 진입 전 스플래시 화면을 표시합니다.  
+`SetConsoleOutputCP(CP_UTF8)`로 콘솔 한글 출력을 보장합니다.
+
+```
+╔══════════════════════════════════════════════════════════════╗
+║                                                              ║
+║              S-Semi 반도체 시료 주문 관리 시스템               ║
+║            Semiconductor Sample Order Management             ║
+║                                                              ║
+╠══════════════════════════════════════════════════════════════╣
+║                                                              ║
+║   시료(Sample) 등록부터 주문 · 생산 · 출고까지                  ║
+║   S-Semi의 전체 시료 공급 흐름을 하나의 시스템으로 관리합니다.    ║
+║                                                              ║
+║   주요 기능                                                    ║
+║     [1] 시료 관리       [2] 주문 생성/승인/거절                  ║
+║     [3] 대시보드        [4] 생산 처리 · 출고 처리                ║
+║                                                              ║
+╠══════════════════════════════════════════════════════════════╣
+║                                                              ║
+║                    Press Enter to Start...                   ║
+║                                                              ║
+╚══════════════════════════════════════════════════════════════╝
+```
 
 ### 파일 구조
 
@@ -396,6 +462,7 @@ SampleOrderSystem/
 │   ├── DashboardController.h / .cpp
 │   └── SampleController.h / .cpp
 ├── View/
+│   ├── SplashView.h / .cpp
 │   ├── MainView.h / .cpp
 │   ├── SampleView.h / .cpp
 │   ├── OrderView.h / .cpp
@@ -403,6 +470,9 @@ SampleOrderSystem/
 │   ├── ReleaseView.h / .cpp
 │   └── DashboardView.h / .cpp
 └── Util/
+    ├── IClock.h
+    ├── SystemClock.h
+    ├── Constants.h
     ├── DummyDataGenerator.h / .cpp
     └── json.hpp
 ```
