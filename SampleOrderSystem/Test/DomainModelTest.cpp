@@ -1,3 +1,4 @@
+#ifdef _DEBUG
 #include <gtest/gtest.h>
 #include "Model/OrderStatus.h"
 #include "Model/Sample.h"
@@ -6,7 +7,7 @@
 #include "Util/IClock.h"
 #include "Util/SystemClock.h"
 
-// ---- 테스트 전용 FakeClock (프로덕션 코드 오염 방지) ----
+// ---- 테스트 전용 FakeClock ----
 class FakeClock : public IClock {
 public:
     explicit FakeClock(std::string fixedTime) : time_(std::move(fixedTime)) {}
@@ -93,3 +94,4 @@ TEST(SystemClock, FormatContainsDashes) {
     EXPECT_EQ(t[13], ':');
     EXPECT_EQ(t[16], ':');
 }
+#endif

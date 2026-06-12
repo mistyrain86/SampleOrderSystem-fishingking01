@@ -4,5 +4,4 @@
     <Platform Name="x86" />
   </Configurations>
   <Project Path="SampleOrderSystem/SampleOrderSystem.vcxproj" Id="3beff7b2-4e81-4709-b8c7-27c5b1c1cc14" />
-  <Project Path="SampleOrderSystemTest/SampleOrderSystemTest.vcxproj" Id="a1b2c3d4-e5f6-7890-abcd-ef1234567890" />
 </Solution>

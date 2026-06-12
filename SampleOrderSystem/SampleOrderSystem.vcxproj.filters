@@ -22,6 +22,9 @@
     <Filter Include="Model">
       <UniqueIdentifier>{D3E4F5A6-B7C8-9012-DEF0-123456789012}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Test">
+      <UniqueIdentifier>{E4F5A6B7-C8D9-0123-EF01-234567890123}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -53,6 +56,12 @@
     </ClCompile>
     <ClCompile Include="Util\SystemClock.cpp">
       <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="Test\SanityTest.cpp">
+      <Filter>Test</Filter>
+    </ClCompile>
+    <ClCompile Include="Test\DomainModelTest.cpp">
+      <Filter>Test</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
