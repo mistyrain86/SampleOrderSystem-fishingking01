@@ -318,7 +318,7 @@ private:
 | V5-2 | `reserveOrder` FakeClock (TDD) | `orderedAt` = FakeClock 값 |
 | V5-3 | `approveOrder` 케이스 A (TDD) | CONFIRMED + pureQty 감소 + reservedQty 증가 |
 | V5-4 | `approveOrder` 케이스 B (TDD) | PRODUCING + reservedQty 즉시 선점 |
-| V5-5 | `approveOrder` 케이스 B pureQty 불변 (TDD) | PRODUCING 전환 시 pureQty 변동 없음 |
+| V5-5 | `approveOrder` 케이스 B pureQty 전량 소진 (TDD) | PRODUCING 전환 시 pureQty = 0 (가용재고 전량 소진, 이중 주문 방지) |
 | V5-6 | `rejectOrder` (TDD) | REJECTED + 재고 변동 없음 |
 | V5-7 | 주문 생성 (직접 조작) | 입력 → 확인 → RESERVED |
 | V5-8 | 주문 승인 케이스 A (직접 조작) | CONFIRMED 전환 + 재고 변화 확인 |
@@ -354,12 +354,15 @@ private:
   주문량   80 ea        재고 30 ea → 부족 50 ea → 실생산량 61 ea
   총 생산시간  49 min
 
+  진행률     [==========----------] 50 %
+  현재 생산량  30 / 61 ea  (경과 24.5 min)
+
   [대기 중인 주문  FIFO 순]
   순서   주문번호     시료                   주문량    부족분    실생산량   예상완료
   1     ORD-0040    산화막 웨이퍼-SiO2      150 ea   150 ea   190 ea   11:43
   2     ORD-0043    SiC 파워기판-6인치      200 ea   170 ea   206 ea   14:28
 
-  * 부족분 = 주문량 - 재고,  실생산량 = ceil(부족분 / (수율 * 0.9))
+  * 부족분 = 주문량 - 재고,  실생산량 = ceil(부족분 / (수율 × 0.9))
   [C] 생산 완료 처리    [0] 위로
 ```
 
@@ -387,7 +390,7 @@ private:
 | V6-1 | `getProductionQueue` FIFO (TDD) | 등록 순서 = 반환 순서 |
 | V6-2 | `calcEstimatedTime` (TDD) | `cycleTime × requiredProduction` |
 | V6-3 | `completeProduction` 상태 전환 (TDD) | PRODUCING → CONFIRMED |
-| V6-4 | `completeProduction` pureQty 귀속 (TDD) | `pureQty += (requiredProduction - quantity)` |
+| V6-4 | `completeProduction` pureQty 귀속 (TDD) | `pureQty += (requiredProduction - productionShortage)` |
 | V6-5 | `releaseOrder` (TDD) | CONFIRMED → RELEASE + `reservedQty -= quantity` |
 | V6-6 | 생산 완료 처리 (직접 조작) | CONFIRMED 전환 + 초과분 pureQty 증가 확인 |
 | V6-7 | 출고 처리 (직접 조작) | RELEASE 전환 + reservedQty 감소 확인 |

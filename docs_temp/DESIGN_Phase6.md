@@ -15,9 +15,10 @@
 - `Controller/ReleaseController.h/.cpp`
 - `View/ProductionView.h/.cpp` — 스텁 교체, 생산라인 화면 완성
 - `View/ReleaseView.h/.cpp` — 스텁 교체, 출고 처리 화면 완성
-- `View/MainView.h/.cpp` — `ProductionController` setter + 생산라인 대기 수 연동
+- `View/MainView.h/.cpp` — `ProductionController` / `ReleaseController` setter + 생산라인 대기 수 연동
 - `Test/ProductionControllerTest.cpp` — TDD 선행 작성
 - `Test/ReleaseControllerTest.cpp` — TDD 선행 작성
+- `Model/Order.h` — `productionShortage`, `productionStartedAt` 필드 추가 (버그 수정 시 확정)
 
 ### 제외 (Out of Scope)
 - 모니터링 기능 (Phase 7)
@@ -104,6 +105,21 @@ private:
 > **PRD §8 메모:** 원래 `ReleaseController(IOrderRepository&, IClock&)` 이었으나,  
 > `reservedQuantity` 차감을 위해 `ISampleRepository&` 가 추가로 필요하므로 3-인자 생성자를 사용한다.
 
+### 3-3. `Model/Order.h` — Phase 6 구현 중 추가된 필드
+
+```cpp
+struct Order {
+    // ... (기존 필드) ...
+    int         productionShortage;   // 승인 시점 부족분 (qty - pureQty), excessProduction 계산용
+    std::string productionStartedAt;  // PRODUCING 전환 일시, 진행률 계산용
+};
+```
+
+> `productionShortage` 는 `approveOrder` Case B 에서 `qty - pureQty` 로 산정 후 저장.  
+> `completeProduction` 에서 `excessProduction = requiredProduction - productionShortage` 계산에 사용.  
+> `productionStartedAt` 은 `approveOrder` Case B 에서 `clock_.now()` 로 설정.  
+> `ProductionView` 에서 경과 시간 / 진행률 / 현재 생산량 계산에 사용.
+
 ---
 
 ## 4. 핵심 비즈니스 로직
@@ -115,7 +131,7 @@ private:
 2. order.status != PRODUCING     → return false
 3. sampleRepo_.findById(order.sampleId) → sample
 
-4. excessProduction = order.requiredProduction - order.quantity
+4. excessProduction = order.requiredProduction - order.productionShortage
 5. sample.pureQuantity += excessProduction   // 초과 생산분 → 순수 재고 귀속
 6. order.status = CONFIRMED
    (reservedQuantity 는 PRODUCING 전환 시 이미 선점 → 변동 없음)
@@ -125,8 +141,10 @@ private:
 9. return true
 ```
 
-> `excessProduction` 은 항상 ≥ 0.  
-> `requiredProduction = ceil(qty / (yield × 0.9)) ≥ qty` 이므로 pureQty 는 항상 증가하거나 유지됩니다.
+> `excessProduction = requiredProduction - productionShortage` 는 항상 ≥ 0.  
+> `requiredProduction = ceil(부족분 / (yield × 0.9)) ≥ 부족분` 이므로 pureQty 는 항상 증가하거나 유지됩니다.  
+> `productionShortage` = 승인 시점의 `qty - pureQty`.  
+> ※ Case B 승인 시 pureQty 는 이미 0 으로 소진되므로, 생산 완료 후 pureQty = 0 + excessProduction.
 
 ### 4-2. `releaseOrder` (PRD §4-5)
 
@@ -162,24 +180,28 @@ static double calcEstimatedTime(double cycleTime, int requiredProduction) {
 ================================================================
   [5] 생산라인 조회   FIFO 방식
 ----------------------------------------------------------------
-  생산 대기 목록   (총 2건)
 
-  순서   주문번호    시료                   주문량   부족분   실생산량   예상시간
+  [현재 처리 중]
+  주문번호  ORD0001       시료  SiC 파워기판-6인치
+  주문량   80 ea        재고 30 ea → 부족 50 ea → 실생산량 61 ea
+  총 생산시간  73 min
+
+  진행률     [==========----------] 50 %
+  현재 생산량  30 / 61 ea  (경과 36.5 min)
+
+  [대기 중인 주문  FIFO 순]
+  순서   주문번호    시료                   주문량    부족분    실생산량   예상완료
   ──────────────────────────────────────────────────────────────────────────
-  [1]   ORD0001    SiC 파워기판-6인치       80 ea    50 ea    61 ea    73 min
-  [2]   ORD0002    산화막 웨이퍼-SiO2      150 ea   150 ea   190 ea   76 min
+  1     ORD0002    산화막 웨이퍼-SiO2      150 ea   150 ea   190 ea   11:43
 
-  ※ 부족분 = 주문량 - 가용재고  |  실생산량 = ceil(주문량 / (수율 × 0.9))
-  ※ 예상시간 = 사이클타임 × 실생산량
+  * 부족분 = 주문량 - 재고,  실생산량 = ceil(부족분 / (수율 × 0.9))
 
   [C] 생산 완료 처리    [0] 위로
   선택 > C
-
-  완료할 순번 > 1
 ----------------------------------------------------------------
   생산 완료 처리 결과
   주문번호   ORD0001
-  초과 생산   11 ea → 가용 재고에 귀속 (순수 재고 증가)
+  초과 생산  11 ea → 가용 재고에 귀속 (순수 재고 증가)
   상태       PRODUCING → CONFIRMED
 ```
 
@@ -237,7 +259,7 @@ static double calcEstimatedTime(double cycleTime, int requiredProduction) {
 | T6-3 | `GetProductionQueue_OnlyProducing` | `findByStatus(PRODUCING)` 위임 | PRODUCING 주문만 반환 |
 | T6-4 | `GetProductionCount_Delegates` | `getProductionCount` | `findByStatus(PRODUCING).size()` |
 | T6-5 | `CompleteProduction_Success` | PRODUCING 주문 | `true`, CONFIRMED 상태 |
-| T6-6 | `CompleteProduction_ExcessToPureQty` | qty=80, reqProd=61, 부족분 기준 아님 — qty=80, reqProd=100 → excess=20 | `pureQty += 20` |
+| T6-6 | `CompleteProduction_ExcessToPureQty` | qty=80, productionShortage=50, reqProd=100 → excess=50 | pureQty(0) + (100-50) = `50` |
 | T6-7 | `CompleteProduction_ReservedUnchanged` | 생산 완료 후 sample | `reservedQty` 불변 |
 | T6-8 | `CompleteProduction_NotProducing` | CONFIRMED 주문 완료 시도 | `false`, update 미호출 |
 | T6-9 | `CompleteProduction_NotFound` | 없는 orderId | `false` |
@@ -290,7 +312,7 @@ static double calcEstimatedTime(double cycleTime, int requiredProduction) {
 | PRD 항목 | Phase 6 반영 여부 | 비고 |
 |---------|-----------------|------|
 | `completeProduction` PRODUCING → CONFIRMED | ✅ | PRD §4-4 |
-| `excessProduction = reqProd - qty` → pureQty 귀속 | ✅ | PRD §4-4 |
+| `excessProduction = reqProd - productionShortage` → pureQty 귀속 | ✅ | PRD §4-4 (부족분 기준, 버그 수정 반영) |
 | `completeProduction` reservedQty 변동 없음 | ✅ | PRD §4-4 (케이스 B 승인 시 이미 선점) |
 | PRODUCING 아닌 주문 완료 시도 → 실패 | ✅ | PRD §3 상태 흐름 |
 | `releaseOrder` CONFIRMED → RELEASE | ✅ | PRD §4-5 |
@@ -309,8 +331,8 @@ static double calcEstimatedTime(double cycleTime, int requiredProduction) {
 |--------|---------|-------------|---------|-------|
 | 시료 등록 | 초기값 | 0 | 초기값 | 4 |
 | 주문 승인 케이스 A | `-= qty` | `+= qty` | 불변 | 5 |
-| 주문 승인 케이스 B | 불변 | `+= qty` | `+= qty` | 5 |
-| **생산 완료** | **`+= excessProd`** | 불변 | `+= excessProd` | **6** |
+| 주문 승인 케이스 B | **`= 0` (전량 소진)** | `+= qty` | 불변 | 5 |
+| **생산 완료** | **`+= (reqProd - shortage)`** | 불변 | `+= excessProd` | **6** |
 | **출고** | 불변 | **`-= qty`** | **`-= qty`** | **6** |
 | 주문 거절 | 불변 | 불변 | 불변 | 5 |
 
