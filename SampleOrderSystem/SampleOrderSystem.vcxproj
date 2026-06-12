@@ -161,10 +161,15 @@
       <ExcludedFromBuild Condition="'$(Configuration)'=='Debug'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="Util\SystemClock.cpp" />
+    <ClCompile Include="Model\SampleRepository.cpp" />
+    <ClCompile Include="Model\OrderRepository.cpp" />
     <ClCompile Include="Test\SanityTest.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)'=='Release'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="Test\DomainModelTest.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)'=='Release'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="Test\RepositoryTest.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)'=='Release'">true</ExcludedFromBuild>
     </ClCompile>
   </ItemGroup>
@@ -177,6 +182,10 @@
     <ClInclude Include="View\MonitoringView.h" />
     <ClInclude Include="View\ProductionView.h" />
     <ClInclude Include="View\ReleaseView.h" />
+    <ClInclude Include="Model\ISampleRepository.h" />
+    <ClInclude Include="Model\SampleRepository.h" />
+    <ClInclude Include="Model\IOrderRepository.h" />
+    <ClInclude Include="Model\OrderRepository.h" />
     <ClInclude Include="Model\OrderStatus.h" />
     <ClInclude Include="Model\Sample.h" />
     <ClInclude Include="Model\Order.h" />

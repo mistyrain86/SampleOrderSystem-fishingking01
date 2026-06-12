@@ -57,10 +57,19 @@
     <ClCompile Include="Util\SystemClock.cpp">
       <Filter>Util</Filter>
     </ClCompile>
+    <ClCompile Include="Model\SampleRepository.cpp">
+      <Filter>Model</Filter>
+    </ClCompile>
+    <ClCompile Include="Model\OrderRepository.cpp">
+      <Filter>Model</Filter>
+    </ClCompile>
     <ClCompile Include="Test\SanityTest.cpp">
       <Filter>Test</Filter>
     </ClCompile>
     <ClCompile Include="Test\DomainModelTest.cpp">
+      <Filter>Test</Filter>
+    </ClCompile>
+    <ClCompile Include="Test\RepositoryTest.cpp">
       <Filter>Test</Filter>
     </ClCompile>
   </ItemGroup>
@@ -88,6 +97,18 @@
     </ClInclude>
     <ClInclude Include="View\ReleaseView.h">
       <Filter>View</Filter>
+    </ClInclude>
+    <ClInclude Include="Model\ISampleRepository.h">
+      <Filter>Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Model\SampleRepository.h">
+      <Filter>Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Model\IOrderRepository.h">
+      <Filter>Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Model\OrderRepository.h">
+      <Filter>Model</Filter>
     </ClInclude>
     <ClInclude Include="Model\OrderStatus.h">
       <Filter>Model</Filter>
