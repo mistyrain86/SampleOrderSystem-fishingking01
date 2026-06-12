@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="소스 파일">
@@ -13,8 +13,72 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="View">
+      <UniqueIdentifier>{B1C2D3E4-F5A6-7890-BCDE-F01234567890}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Util">
+      <UniqueIdentifier>{C2D3E4F5-A6B7-8901-CDEF-012345678901}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="View\SplashView.cpp">
+      <Filter>View</Filter>
+    </ClCompile>
+    <ClCompile Include="View\MainView.cpp">
+      <Filter>View</Filter>
+    </ClCompile>
+    <ClCompile Include="View\SampleView.cpp">
+      <Filter>View</Filter>
+    </ClCompile>
+    <ClCompile Include="View\OrderView.cpp">
+      <Filter>View</Filter>
+    </ClCompile>
+    <ClCompile Include="View\ApprovalView.cpp">
+      <Filter>View</Filter>
+    </ClCompile>
+    <ClCompile Include="View\MonitoringView.cpp">
+      <Filter>View</Filter>
+    </ClCompile>
+    <ClCompile Include="View\ProductionView.cpp">
+      <Filter>View</Filter>
+    </ClCompile>
+    <ClCompile Include="View\ReleaseView.cpp">
+      <Filter>View</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="View\SplashView.h">
+      <Filter>View</Filter>
+    </ClInclude>
+    <ClInclude Include="View\MainView.h">
+      <Filter>View</Filter>
+    </ClInclude>
+    <ClInclude Include="View\SampleView.h">
+      <Filter>View</Filter>
+    </ClInclude>
+    <ClInclude Include="View\OrderView.h">
+      <Filter>View</Filter>
+    </ClInclude>
+    <ClInclude Include="View\ApprovalView.h">
+      <Filter>View</Filter>
+    </ClInclude>
+    <ClInclude Include="View\MonitoringView.h">
+      <Filter>View</Filter>
+    </ClInclude>
+    <ClInclude Include="View\ProductionView.h">
+      <Filter>View</Filter>
+    </ClInclude>
+    <ClInclude Include="View\ReleaseView.h">
+      <Filter>View</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="Util\json.hpp">
+      <Filter>Util</Filter>
+    </None>
   </ItemGroup>
 </Project>
