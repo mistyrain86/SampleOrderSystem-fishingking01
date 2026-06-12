@@ -5,18 +5,22 @@
 #include "MonitoringView.h"
 #include "ProductionView.h"
 #include "ReleaseView.h"
+#include "Controller/SampleController.h"
 #include <iostream>
 #include <string>
 #include <ctime>
 #include <limits>
 
+void MainView::setSampleController(SampleController* ctrl) {
+    sampleCtrl_ = ctrl;
+}
+
 void MainView::run() {
-    int choice = -1;
     while (true) {
         system("cls");
         printHeader();
         printMenu();
-        choice = readChoice();
+        int choice = readChoice();
         if (choice == 0) {
             std::cout << "\n  시스템을 종료합니다. 안녕히 가세요.\n\n";
             break;
@@ -32,11 +36,14 @@ void MainView::printHeader() const {
     char timeStr[32];
     std::strftime(timeStr, sizeof(timeStr), "%Y-%m-%d %H:%M:%S", &tmNow);
 
+    int sampleCount    = sampleCtrl_ ? sampleCtrl_->getSampleCount()    : 0;
+    int totalInventory = sampleCtrl_ ? sampleCtrl_->getTotalInventory() : 0;
+
     std::cout << "================================================================\n";
     std::cout << "  S-Semi 반도체 시료 생산주문관리 시스템\n";
     std::cout << "================================================================\n";
     std::cout << "  시스템 현황   " << timeStr << "\n\n";
-    std::cout << "  등록 시료   0 종      총 재고     0 ea\n";
+    std::cout << "  등록 시료   " << sampleCount    << " 종      총 재고   " << totalInventory << " ea\n";
     std::cout << "  전체 주문   0 건      생산라인    0 건 대기\n";
     std::cout << "----------------------------------------------------------------\n";
 }
@@ -53,16 +60,15 @@ int MainView::readChoice() const {
     std::cout << "  선택 > ";
     std::string line;
     std::getline(std::cin, line);
-    try {
-        return std::stoi(line);
-    } catch (...) {
-        return -1;
-    }
+    try { return std::stoi(line); }
+    catch (...) { return -1; }
 }
 
 void MainView::dispatch(int choice) {
     switch (choice) {
-    case 1: { SampleView v;     v.show(); break; }
+    case 1:
+        if (sampleCtrl_) { SampleView v(*sampleCtrl_); v.show(); }
+        break;
     case 2: { OrderView v;      v.show(); break; }
     case 3: { ApprovalView v;   v.show(); break; }
     case 4: { MonitoringView v; v.show(); break; }
