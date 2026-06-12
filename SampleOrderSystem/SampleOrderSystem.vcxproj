@@ -140,6 +140,7 @@
     <ClCompile Include="View\MonitoringView.cpp" />
     <ClCompile Include="View\ProductionView.cpp" />
     <ClCompile Include="View\ReleaseView.cpp" />
+    <ClCompile Include="Util\SystemClock.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="View\SplashView.h" />
@@ -150,6 +151,12 @@
     <ClInclude Include="View\MonitoringView.h" />
     <ClInclude Include="View\ProductionView.h" />
     <ClInclude Include="View\ReleaseView.h" />
+    <ClInclude Include="Model\OrderStatus.h" />
+    <ClInclude Include="Model\Sample.h" />
+    <ClInclude Include="Model\Order.h" />
+    <ClInclude Include="Util\Constants.h" />
+    <ClInclude Include="Util\IClock.h" />
+    <ClInclude Include="Util\SystemClock.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -19,6 +19,9 @@
     <Filter Include="Util">
       <UniqueIdentifier>{C2D3E4F5-A6B7-8901-CDEF-012345678901}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Model">
+      <UniqueIdentifier>{D3E4F5A6-B7C8-9012-DEF0-123456789012}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -48,6 +51,9 @@
     <ClCompile Include="View\ReleaseView.cpp">
       <Filter>View</Filter>
     </ClCompile>
+    <ClCompile Include="Util\SystemClock.cpp">
+      <Filter>Util</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="View\SplashView.h">
@@ -73,6 +79,24 @@
     </ClInclude>
     <ClInclude Include="View\ReleaseView.h">
       <Filter>View</Filter>
+    </ClInclude>
+    <ClInclude Include="Model\OrderStatus.h">
+      <Filter>Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Model\Sample.h">
+      <Filter>Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Model\Order.h">
+      <Filter>Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\Constants.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\IClock.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\SystemClock.h">
+      <Filter>Util</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
