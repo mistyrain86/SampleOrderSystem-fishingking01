@@ -9,6 +9,7 @@
 #include "Controller/OrderController.h"
 #include "Controller/ProductionController.h"
 #include "Controller/ReleaseController.h"
+#include "Controller/MonitoringController.h"
 #include <iostream>
 #include <string>
 #include <ctime>
@@ -28,6 +29,10 @@ void MainView::setProductionController(ProductionController* ctrl) {
 
 void MainView::setReleaseController(ReleaseController* ctrl) {
     releaseCtrl_ = ctrl;
+}
+
+void MainView::setMonitoringController(MonitoringController* ctrl) {
+    monitoringCtrl_ = ctrl;
 }
 
 void MainView::run() {
@@ -92,7 +97,12 @@ void MainView::dispatch(int choice) {
     case 3:
         if (orderCtrl_ && sampleCtrl_) { ApprovalView v(*orderCtrl_, *sampleCtrl_); v.show(); }
         break;
-    case 4: { MonitoringView v; v.show(); break; }
+    case 4:
+        if (monitoringCtrl_) {
+            MonitoringView v(*monitoringCtrl_);
+            v.show();
+        }
+        break;
     case 5:
         if (productionCtrl_ && sampleCtrl_) {
             ProductionView v(*productionCtrl_, *sampleCtrl_);

@@ -102,6 +102,12 @@
     <ClCompile Include="Controller\ReleaseController.cpp">
       <Filter>Controller</Filter>
     </ClCompile>
+    <ClCompile Include="Controller\MonitoringController.cpp">
+      <Filter>Controller</Filter>
+    </ClCompile>
+    <ClCompile Include="Test\MonitoringControllerTest.cpp">
+      <Filter>Test</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="View\SplashView.h">
@@ -139,6 +145,15 @@
     </ClInclude>
     <ClInclude Include="Controller\ReleaseController.h">
       <Filter>Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="Controller\MonitoringController.h">
+      <Filter>Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="Model\OrderSummary.h">
+      <Filter>Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Model\InventoryStatus.h">
+      <Filter>Model</Filter>
     </ClInclude>
     <ClInclude Include="Model\ISampleRepository.h">
       <Filter>Model</Filter>

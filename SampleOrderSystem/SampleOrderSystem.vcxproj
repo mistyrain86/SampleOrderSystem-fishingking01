@@ -189,6 +189,10 @@
     </ClCompile>
     <ClCompile Include="Controller\ProductionController.cpp" />
     <ClCompile Include="Controller\ReleaseController.cpp" />
+    <ClCompile Include="Controller\MonitoringController.cpp" />
+    <ClCompile Include="Test\MonitoringControllerTest.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)'=='Release'">true</ExcludedFromBuild>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="View\SplashView.h" />
@@ -203,6 +207,9 @@
     <ClInclude Include="Controller\OrderController.h" />
     <ClInclude Include="Controller\ProductionController.h" />
     <ClInclude Include="Controller\ReleaseController.h" />
+    <ClInclude Include="Controller\MonitoringController.h" />
+    <ClInclude Include="Model\OrderSummary.h" />
+    <ClInclude Include="Model\InventoryStatus.h" />
     <ClInclude Include="Model\ISampleRepository.h" />
     <ClInclude Include="Model\SampleRepository.h" />
     <ClInclude Include="Model\IOrderRepository.h" />

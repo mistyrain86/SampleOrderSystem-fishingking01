@@ -17,6 +17,7 @@ int main(int argc, char** argv) {
 #include "Controller/OrderController.h"
 #include "Controller/ProductionController.h"
 #include "Controller/ReleaseController.h"
+#include "Controller/MonitoringController.h"
 #include "View/SplashView.h"
 #include "View/MainView.h"
 
@@ -34,6 +35,7 @@ int main() {
     OrderController      orderCtrl(orderRepo, sampleRepo, clock);
     ProductionController productionCtrl(orderRepo, sampleRepo, clock);
     ReleaseController    releaseCtrl(orderRepo, sampleRepo, clock);
+    MonitoringController monitoringCtrl(orderRepo, sampleRepo);
 
     SplashView splash;
     splash.show();
@@ -43,6 +45,7 @@ int main() {
     mainView.setOrderController(&orderCtrl);
     mainView.setProductionController(&productionCtrl);
     mainView.setReleaseController(&releaseCtrl);
+    mainView.setMonitoringController(&monitoringCtrl);
     mainView.run();
 
     return 0;
