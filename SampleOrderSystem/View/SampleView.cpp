@@ -85,10 +85,10 @@ void SampleView::showList() const {
                   << std::setw(24) << "시료명"
                   << std::setw(14) << "사이클타임"
                   << std::setw(8)  << "수율"
-                  << std::setw(10) << "순수재고"
-                  << std::setw(10) << "접수재고"
+                  << std::setw(12) << "가용재고(*)"
+                  << std::setw(12) << "예약재고(**)"
                   << "총재고\n";
-        std::cout << "  " << std::string(78, '-') << "\n";
+        std::cout << "  " << std::string(82, '-') << "\n";
 
         for (const auto& s : samples) {
             int total = s.pureQuantity + s.reservedQuantity;
@@ -98,10 +98,12 @@ void SampleView::showList() const {
                       << std::setw(10) << std::fixed << std::setprecision(2) << s.cycleTime
                       << std::setw(4)  << " min/ea"
                       << std::setw(8)  << std::fixed << std::setprecision(2) << s.yield
-                      << std::setw(7)  << s.pureQuantity     << " ea  "
-                      << std::setw(7)  << s.reservedQuantity << " ea  "
+                      << std::setw(9)  << s.pureQuantity     << " ea   "
+                      << std::setw(9)  << s.reservedQuantity << " ea   "
                       << total << " ea\n";
         }
+        std::cout << "\n  (*) 가용재고: 즉시 출고 가능한 재고\n";
+        std::cout << "  (**) 예약재고: 주문 승인 완료 후 출고 대기 중인 재고  (총재고 = 가용 + 예약)\n";
     }
     std::cout << "\n  Enter를 눌러 계속...";
     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
@@ -126,10 +128,10 @@ void SampleView::showSearch() const {
                   << std::setw(24) << "시료명"
                   << std::setw(14) << "사이클타임"
                   << std::setw(8)  << "수율"
-                  << std::setw(10) << "순수재고"
-                  << std::setw(10) << "접수재고"
+                  << std::setw(12) << "가용재고(*)"
+                  << std::setw(12) << "예약재고(**)"
                   << "총재고\n";
-        std::cout << "  " << std::string(78, '-') << "\n";
+        std::cout << "  " << std::string(82, '-') << "\n";
 
         for (const auto& s : results) {
             int total = s.pureQuantity + s.reservedQuantity;
@@ -139,10 +141,12 @@ void SampleView::showSearch() const {
                       << std::setw(10) << std::fixed << std::setprecision(2) << s.cycleTime
                       << std::setw(4)  << " min/ea"
                       << std::setw(8)  << std::fixed << std::setprecision(2) << s.yield
-                      << std::setw(7)  << s.pureQuantity     << " ea  "
-                      << std::setw(7)  << s.reservedQuantity << " ea  "
+                      << std::setw(9)  << s.pureQuantity     << " ea   "
+                      << std::setw(9)  << s.reservedQuantity << " ea   "
                       << total << " ea\n";
         }
+        std::cout << "\n  (*) 가용재고: 즉시 출고 가능한 재고\n";
+        std::cout << "  (**) 예약재고: 주문 승인 완료 후 출고 대기 중인 재고  (총재고 = 가용 + 예약)\n";
     }
     std::cout << "\n  Enter를 눌러 계속...";
     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');

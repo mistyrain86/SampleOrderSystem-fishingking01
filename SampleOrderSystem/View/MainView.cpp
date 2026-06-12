@@ -6,6 +6,7 @@
 #include "ProductionView.h"
 #include "ReleaseView.h"
 #include "Controller/SampleController.h"
+#include "Controller/OrderController.h"
 #include <iostream>
 #include <string>
 #include <ctime>
@@ -13,6 +14,10 @@
 
 void MainView::setSampleController(SampleController* ctrl) {
     sampleCtrl_ = ctrl;
+}
+
+void MainView::setOrderController(OrderController* ctrl) {
+    orderCtrl_ = ctrl;
 }
 
 void MainView::run() {
@@ -38,13 +43,14 @@ void MainView::printHeader() const {
 
     int sampleCount    = sampleCtrl_ ? sampleCtrl_->getSampleCount()    : 0;
     int totalInventory = sampleCtrl_ ? sampleCtrl_->getTotalInventory() : 0;
+    int orderCount     = orderCtrl_  ? orderCtrl_->getOrderCount()      : 0;
 
     std::cout << "================================================================\n";
     std::cout << "  S-Semi 반도체 시료 생산주문관리 시스템\n";
     std::cout << "================================================================\n";
     std::cout << "  시스템 현황   " << timeStr << "\n\n";
     std::cout << "  등록 시료   " << sampleCount    << " 종      총 재고   " << totalInventory << " ea\n";
-    std::cout << "  전체 주문   0 건      생산라인    0 건 대기\n";
+    std::cout << "  전체 주문   " << orderCount     << " 건      생산라인    0 건 대기\n";
     std::cout << "----------------------------------------------------------------\n";
 }
 
@@ -69,8 +75,12 @@ void MainView::dispatch(int choice) {
     case 1:
         if (sampleCtrl_) { SampleView v(*sampleCtrl_); v.show(); }
         break;
-    case 2: { OrderView v;      v.show(); break; }
-    case 3: { ApprovalView v;   v.show(); break; }
+    case 2:
+        if (orderCtrl_ && sampleCtrl_) { OrderView v(*orderCtrl_, *sampleCtrl_); v.show(); }
+        break;
+    case 3:
+        if (orderCtrl_ && sampleCtrl_) { ApprovalView v(*orderCtrl_, *sampleCtrl_); v.show(); }
+        break;
     case 4: { MonitoringView v; v.show(); break; }
     case 5: { ProductionView v; v.show(); break; }
     case 6: { ReleaseView v;    v.show(); break; }

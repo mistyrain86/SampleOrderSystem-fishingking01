@@ -1,10 +1,12 @@
 #pragma once
 
 class SampleController;
+class OrderController;
 
 class MainView {
 public:
     void setSampleController(SampleController* ctrl);
+    void setOrderController(OrderController* ctrl);
     void run();
 
 private:
@@ -14,4 +16,5 @@ private:
     void dispatch(int choice);
 
     SampleController* sampleCtrl_ = nullptr;
+    OrderController*  orderCtrl_  = nullptr;
 };
