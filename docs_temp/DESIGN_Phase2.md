@@ -19,7 +19,7 @@
 ### 제외 (Out of Scope)
 - Repository CRUD 구현 (Phase 3)
 - Controller / View 비즈니스 로직 (Phase 4~)
-- `FakeClock` 클래스 — 테스트 프로젝트 내부에서만 정의 (프로덕션 코드 오염 방지)
+- `FakeClock` 클래스 — `Test/` 폴더 내에서만 정의 (프로덕션 코드 오염 방지, `#ifdef _DEBUG` 가드)
 
 ---
 
@@ -36,8 +36,8 @@ SampleOrderSystem/
     ├── IClock.h             ← NEW (헤더 전용)
     └── SystemClock.h / .cpp ← NEW
 
-SampleOrderSystemTest/
-└── DomainModelTest.cpp      ← NEW (TDD: 테스트 선행 작성)
+    └── Test/
+        └── DomainModelTest.cpp  ← NEW (TDD: 테스트 선행 작성, #ifdef _DEBUG)
 ```
 
 ---
@@ -240,11 +240,13 @@ private:
 <ClCompile Include="Util\SystemClock.cpp"><Filter>Util</Filter></ClCompile>
 ```
 
-### `SampleOrderSystemTest.vcxproj`
+### `SampleOrderSystem.vcxproj` — Test 파일 추가
 
-**추가 `<ClCompile>`:**
+**추가 `<ClCompile>` (Release ExcludedFromBuild):**
 ```xml
-<ClCompile Include="DomainModelTest.cpp" />
+<ClCompile Include="Test\DomainModelTest.cpp">
+  <ExcludedFromBuild Condition="'$(Configuration)'=='Release'">true</ExcludedFromBuild>
+</ClCompile>
 ```
 
 ---

@@ -9,8 +9,8 @@
 ## 1. 목표 및 범위
 
 ### 포함 (In Scope)
-- `SampleOrderSystem` 메인 프로젝트 + `SampleOrderSystemTest` 테스트 프로젝트 구성
-- `Model / Controller / View / Util` 폴더 구조
+- `SampleOrderSystem` 단일 프로젝트 (Debug=테스트 실행, Release=앱 실행)
+- `Model / Controller / View / Util / Test` 폴더 구조
 - `json.hpp` 단일 헤더 추가
 - `SplashView` — S-Semi 배너 + "Press Enter to Start..."
 - `MainView` — 시스템 현황 요약 섹션 + 6개 메뉴 루프
@@ -44,9 +44,8 @@ SampleOrderSystem/
 └── Util/
     └── json.hpp
 
-SampleOrderSystemTest/
-├── SampleOrderSystemTest.vcxproj
-└── SanityTest.cpp
+    └── Test/
+        └── SanityTest.cpp         # Debug 전용 (#ifdef _DEBUG 가드)
 ```
 
 ---
@@ -199,29 +198,32 @@ int main() {
 
 ## 4. 테스트 설계
 
-### 4-1. 테스트 프로젝트 구성
+### 4-1. 테스트 구성 (단일 프로젝트)
 
 | 항목 | 값 |
 |------|----|
-| 프로젝트명 | `SampleOrderSystemTest` |
-| 출력 형식 | 콘솔 애플리케이션 |
-| NuGet 참조 | `gmock.1.11.0` |
-| 추가 포함 경로 | `..\SampleOrderSystem` |
-| 링크 대상 | gmock.lib, gtest.lib (NuGet 자동 처리) |
+| 빌드 방식 | 단일 프로젝트 — Debug=테스트, Release=앱 |
+| NuGet 참조 | `gmock.1.11.0` (메인 프로젝트에 직접 참조) |
+| 추가 포함 경로 | `$(ProjectDir)` |
+| 테스트 진입점 | `main.cpp` 내 `#ifdef _DEBUG` 분기 → `RUN_ALL_TESTS()` |
+| 테스트 파일 위치 | `Test/` 폴더, `ExcludedFromBuild` (Release 제외) |
+| View .cpp 파일 | `ExcludedFromBuild` (Debug 제외) |
 
 ### 4-2. Sanity 테스트
 
-**파일:** `SampleOrderSystemTest/SanityTest.cpp`
+**파일:** `SampleOrderSystem/Test/SanityTest.cpp`
 
 ```cpp
+#ifdef _DEBUG
 #include <gtest/gtest.h>
 
 TEST(Sanity, AlwaysPass) {
     EXPECT_EQ(1 + 1, 2);
 }
+#endif
 ```
 
-**목적:** 테스트 프로젝트 빌드 및 gmock 링크가 정상임을 확인한다.
+**목적:** Debug 빌드 시 gmock 링크 및 테스트 파이프라인이 정상임을 확인한다.
 
 > **TDD 원칙 적용 근거:**  
 > Phase 1은 순수 UI 뼈대(출력 전용)로 단위 테스트 대상 로직이 없다.  
@@ -299,7 +301,7 @@ TEST(Sanity, AlwaysPass) {
 | # | 검증 | 기준 |
 |---|------|------|
 | V1-1 | Debug\|x64 빌드 성공 | 경고·오류 0건 |
-| V1-2 | 테스트 프로젝트 빌드 성공 | gmock 링크 오류 없음 |
+| V1-2 | Debug 빌드 성공 | gmock 링크 오류 없음, 테스트 진입점 확인 |
 | V1-3 | 더미 테스트 실행 | `[  PASSED  ] 1 test` |
 | V1-4 | 앱 실행 시 스플래시 화면 출력 | 배너·"Press Enter" 표시 |
 | V1-5 | Enter 후 메인 메뉴 진입 | 시스템 현황 섹션 + 6개 메뉴 항목 표시 |

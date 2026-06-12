@@ -39,7 +39,7 @@
 | # | 항목 | 설명 |
 |---|------|------|
 | 1-1 | 메인 애플리케이션 프로젝트 | `SampleOrderSystem` — Console Application, C++20, x64 |
-| 1-2 | 테스트 프로젝트 추가 | `SampleOrderSystemTest` — gmock 1.11.0 NuGet 참조, 동일 솔루션 |
+| 1-2 | 테스트 구성 | Debug=`RUN_ALL_TESTS()`, Release=앱 실행 — 단일 프로젝트, `Test/` 폴더 |
 | 1-3 | 폴더 구조 생성 | `Model / Controller / View / Util` 디렉토리 |
 | 1-4 | `Util/json.hpp` 추가 | nlohmann/json 단일 헤더 |
 | 1-5 | `View/SplashView.h/.cpp` | S-Semi 배너 + "Press Enter to Start..." |
