@@ -112,6 +112,23 @@ void ProductionView::show() {
             ? std::min(100, static_cast<int>(elapsedMin / curTime * 100.0))
             : 0;
 
+        // 생산 완료 시 자동 처리 (수동 [C] 불필요)
+        if (producedSoFar >= cur.requiredProduction) {
+            int excess = cur.requiredProduction - cur.productionShortage;
+            productionCtrl_.completeProduction(cur.id);
+            std::cout << "\n----------------------------------------------------------------\n";
+            std::cout << "  [생산 완료 — 자동 처리]\n";
+            std::cout << "  주문번호   " << cur.id << "\n";
+            if (excess > 0) {
+                std::cout << "  초과 생산  " << excess
+                          << " ea → 가용 재고 귀속 (순수 재고 증가)\n";
+            }
+            std::cout << "  상태       PRODUCING → CONFIRMED\n";
+            std::cout << "\n  Enter를 눌러 계속...";
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            continue;
+        }
+
         // 진행 바 (20칸)
         constexpr int BAR_WIDTH = 20;
         int filled = BAR_WIDTH * progressPct / 100;
