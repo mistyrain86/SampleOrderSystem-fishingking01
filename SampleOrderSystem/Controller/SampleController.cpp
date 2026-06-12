@@ -37,6 +37,6 @@ int SampleController::getSampleCount() const {
 int SampleController::getTotalInventory() const {
     int total = 0;
     for (const auto& s : repo_.findAll())
-        total += s.pureQuantity + s.reservedQuantity;
+        total += s.pureQuantity;
     return total;
 }

@@ -336,10 +336,19 @@ TEST_F(OrderControllerTest, GetReservedOrders_OnlyReserved) {
     EXPECT_EQ(result.size(), 2u);
 }
 
-// T5-19: getOrderCount → orderRepo.count() 위임
-TEST_F(OrderControllerTest, GetOrderCount_Delegates) {
-    EXPECT_CALL(orderRepo, count()).WillOnce(Return(5));
-    EXPECT_EQ(ctrl.getOrderCount(), 5);
+// T5-19: getOrderCount — RELEASED·REJECTED 제외, 활성 주문만 카운트
+TEST_F(OrderControllerTest, GetOrderCount_ExcludesReleasedAndRejected) {
+    std::vector<Order> orders;
+    auto makeO = [](const std::string& id, OrderStatus s) {
+        Order o{}; o.id = id; o.status = s; return o;
+    };
+    orders.push_back(makeO("O1", OrderStatus::RESERVED));
+    orders.push_back(makeO("O2", OrderStatus::PRODUCING));
+    orders.push_back(makeO("O3", OrderStatus::CONFIRMED));
+    orders.push_back(makeO("O4", OrderStatus::RELEASE));
+    orders.push_back(makeO("O5", OrderStatus::REJECTED));
+    EXPECT_CALL(orderRepo, findAll()).WillOnce(Return(orders));
+    EXPECT_EQ(ctrl.getOrderCount(), 3); // RELEASED·REJECTED 2건 제외
 }
 
 #endif

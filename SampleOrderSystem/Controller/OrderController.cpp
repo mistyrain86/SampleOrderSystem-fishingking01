@@ -89,5 +89,10 @@ std::vector<Order> OrderController::getReservedOrders() const {
 }
 
 int OrderController::getOrderCount() const {
-    return orderRepo_.count();
+    int count = 0;
+    for (const auto& o : orderRepo_.findAll()) {
+        if (o.status != OrderStatus::RELEASE && o.status != OrderStatus::REJECTED)
+            ++count;
+    }
+    return count;
 }

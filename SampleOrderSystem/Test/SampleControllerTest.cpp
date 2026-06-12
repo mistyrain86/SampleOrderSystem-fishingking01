@@ -99,12 +99,12 @@ TEST_F(SampleControllerTest, GetSampleCount_DelegatesToRepo) {
     EXPECT_EQ(ctrl.getSampleCount(), 3);
 }
 
-// T4-8: getTotalInventory — pureQty + reservedQty 전 시료 합산
-TEST_F(SampleControllerTest, GetTotalInventory_SumsBothFields) {
+// T4-8: getTotalInventory — pureQty 만 합산 (reservedQty 는 미확보 생산분 포함 가능)
+TEST_F(SampleControllerTest, GetTotalInventory_SumsPureQtyOnly) {
     Sample s1 = makeSampleForCtrl("SAM1", 100, 20);
     Sample s2 = makeSampleForCtrl("SAM2", 200, 30);
     EXPECT_CALL(repo, findAll()).WillOnce(Return(std::vector<Sample>{s1, s2}));
-    EXPECT_EQ(ctrl.getTotalInventory(), 350); // (100+20) + (200+30)
+    EXPECT_EQ(ctrl.getTotalInventory(), 300); // 100 + 200 (reservedQty 제외)
 }
 
 // T4-9: getTotalInventory — 시료 없음 → 0
