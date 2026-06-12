@@ -89,12 +89,12 @@ void ProductionView::show() {
         }
 
         // ── 현재 처리 중 ──────────────────────────────────────────
-        const Order& cur      = queue[0];
-        std::string  curName  = findSampleNameP(samples, cur.sampleId);
-        double       curCycle = findCycleTimeP(samples, cur.sampleId);
-        int          pureQty  = findPureQtyP(samples, cur.sampleId);
-        int          shortage = std::max(0, cur.quantity - pureQty);
-        double       curTime  = ProductionController::calcEstimatedTime(
+        const Order& cur           = queue[0];
+        std::string  curName       = findSampleNameP(samples, cur.sampleId);
+        double       curCycle      = findCycleTimeP(samples, cur.sampleId);
+        int          stockAtOrder  = cur.quantity - cur.productionShortage;
+        int          shortage      = cur.productionShortage;
+        double       curTime       = ProductionController::calcEstimatedTime(
                                     curCycle, cur.requiredProduction);
 
         // 진행률 계산
@@ -122,7 +122,7 @@ void ProductionView::show() {
         std::cout << "  주문번호  " << std::left << std::setw(14) << cur.id
                   << "시료  " << curName << "\n";
         std::cout << "  주문량   " << cur.quantity
-                  << " ea        재고 " << pureQty
+                  << " ea        재고 " << stockAtOrder
                   << " ea → 부족 " << shortage
                   << " ea → 실생산량 " << cur.requiredProduction << " ea\n";
         std::cout << "  총 생산시간  "
@@ -155,8 +155,7 @@ void ProductionView::show() {
                 const Order& o       = queue[i];
                 std::string  name    = findSampleNameP(samples, o.sampleId);
                 double       cycle   = findCycleTimeP(samples, o.sampleId);
-                int          oQty    = findPureQtyP(samples, o.sampleId);
-                int          oShort  = std::max(0, o.quantity - oQty);
+                int          oShort  = o.productionShortage;
                 double       oTime   = ProductionController::calcEstimatedTime(
                                            cycle, o.requiredProduction);
                 accumulated += oTime;
@@ -183,7 +182,7 @@ void ProductionView::show() {
         if (input == "0") return;
 
         if (input == "C" || input == "c") {
-            int excess = cur.requiredProduction - cur.quantity;
+            int excess = cur.requiredProduction - cur.productionShortage;
 
             std::cout << "----------------------------------------------------------------\n";
             std::cout << "  생산 완료 처리 결과\n";
