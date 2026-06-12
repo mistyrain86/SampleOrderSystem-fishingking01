@@ -25,7 +25,7 @@ S-Semi는 다양한 종류의 반도체 시료(Sample)를 생산하여 팹리스
 
 | 필드 | 타입 | 설명 |
 |------|------|------|
-| `id` | `std::string` | 시료 고유 ID (예: SAM1, SAM2 …) |
+| `id` | `std::string` | 시료 고유 ID (예: S-001, S-002 …) |
 | `name` | `std::string` | 시료 이름 |
 | `pureQuantity` | `int` | 순수 재고 — 출고 딱지 없는 가용 재고 (초과 생산분 + 이전 주문 처리 후 잔여분) |
 | `reservedQuantity` | `int` | 주문 접수 재고 — 특정 주문에 할당되어 출고 대기 중인 재고 |
@@ -57,7 +57,7 @@ yield = 합격 수량 / 전체 생산 수량
 
 | 필드 | 타입 | 설명 |
 |------|------|------|
-| `id` | `std::string` | 주문 ID (형식: `ORD` + 순번, 예: ORD1) |
+| `id` | `std::string` | 주문 ID (형식: `ORD` + 제로패딩 4자리 순번, 예: ORD0001) |
 | `sampleId` | `std::string` | 대상 시료 ID |
 | `customerName` | `std::string` | 고객명 |
 | `quantity` | `int` | 주문 수량 |
@@ -212,10 +212,10 @@ estimatedTime (분) = sample.cycleTime (min/ea) × order.requiredProduction
 
 ```
 [1] 시료 관리
-[2] 주문 생성
-[3] 주문 승인 / 거절
-[4] 대시보드
-[5] 생산 처리
+[2] 시료 주문
+[3] 주문 승인/거절
+[4] 모니터링
+[5] 생산라인 조회
 [6] 출고 처리
 [0] 종료
 ```
@@ -270,9 +270,11 @@ int count() const;
 
 ---
 
-### 6-5. 대시보드 (DashboardController + DashboardView)
+### 6-5. 모니터링 (MonitoringController + MonitoringView)
 
-**주문 현황 요약** (REJECTED 제외):
+서브 메뉴 `[1] 주문량 확인  [2] 재고량 확인  [0] 위로` 로 구성됩니다.
+
+**[1] 주문량 확인 — 상태별 주문 건수 요약** (REJECTED 제외):
 
 | 상태 | 표시 내용 |
 |------|-----------|
@@ -281,23 +283,28 @@ int count() const;
 | CONFIRMED | 확정 주문 수 |
 | RELEASE | 출고 완료 수 |
 
-**시료별 재고 및 수량 현황:**
+**[2] 재고량 확인 — 시료별 재고 현황:**
 
 | 컬럼 | 설명 |
 |------|------|
-| 순수 재고 | `sample.pureQuantity` |
-| 주문 접수 재고 | `sample.reservedQuantity` |
-| 총 재고 | `pureQuantity + reservedQuantity` |
-| 예약 주문량 | RESERVED 상태 주문들의 수량 합계 |
-| 생산 중 주문량 | PRODUCING 상태 주문들의 수량 합계 |
-| 확정 주문량 | CONFIRMED 상태 주문들의 수량 합계 |
-| 출고 완료량 | RELEASE 상태 주문들의 수량 합계 |
+| 시료명 | `sample.name` |
+| 재고 | `sample.pureQuantity` (가용 재고 기준) |
+| 상태 | 여유 / 부족 / 고갈 |
+| 잔여율 | `pureQuantity / (pureQuantity + reservedQuantity) × 100` |
+
+**재고 상태 판정 기준:**
+
+| 상태 | 조건 |
+|------|------|
+| 여유 | RESERVED 주문 합계 대비 가용 재고 충분 |
+| 부족 | 가용 재고 > 0 이나 RESERVED 주문 합계보다 부족 |
+| 고갈 | `pureQuantity == 0` |
 
 수량이 0인 항목도 표시합니다.
 
 ---
 
-### 6-6. 생산 처리 (ProductionController + View)
+### 6-6. 생산라인 조회 (ProductionController + ProductionView)
 
 - `PRODUCING` 상태 주문을 FIFO 순서로 큐에 표시
 - 각 항목에 `예상 생산 시간(분) = sample.cycleTime × order.requiredProduction` 표시
@@ -305,7 +312,7 @@ int count() const;
 
 ---
 
-### 6-7. 출고 처리 (ReleaseController + View)
+### 6-7. 출고 처리 (ReleaseController + ReleaseView)
 
 - `CONFIRMED` 상태 주문 목록 표시
 - 주문 ID 선택 후 출고 처리 → 섹션 4-5 로직 실행
@@ -329,12 +336,12 @@ data/orders.json
 ```json
 [
   {
-    "id": "SAM1",
-    "name": "GaN-Wafer-A",
-    "pureQuantity": 180,
-    "reservedQuantity": 20,
-    "yield": 0.9,
-    "cycleTime": 15.0,
+    "id": "S-001",
+    "name": "실리콘 웨이퍼-8인치",
+    "pureQuantity": 480,
+    "reservedQuantity": 0,
+    "yield": 0.92,
+    "cycleTime": 0.5,
     "registeredAt": "2026-06-12 09:00:00"
   }
 ]
@@ -344,10 +351,10 @@ data/orders.json
 ```json
 [
   {
-    "id": "ORD1",
-    "sampleId": "SAM1",
-    "customerName": "팹리스A",
-    "quantity": 50,
+    "id": "ORD0001",
+    "sampleId": "S-001",
+    "customerName": "삼성전자 파운드리",
+    "quantity": 100,
     "status": "CONFIRMED",
     "orderedAt": "2026-06-12 10:30:00",
     "requiredProduction": 0
@@ -411,11 +418,14 @@ private:
 };
 ```
 
-`IClock`을 필요로 하는 Controller는 생성자에서 `IClock&`를 인자로 받습니다:
+`IClock`을 필요로 하는 Controller는 생성자에서 `IClock&`를 인자로 받습니다.  
+Repository는 구체 타입이 아닌 **인터페이스**를 주입받아 gmock 테스트가 가능합니다:
 ```cpp
-OrderController(OrderRepository&, SampleRepository&, IClock&);
-ProductionController(OrderRepository&, SampleRepository&, IClock&);
-ReleaseController(OrderRepository&, IClock&);
+SampleController(ISampleRepository&, IClock&);
+OrderController(IOrderRepository&, ISampleRepository&, IClock&);
+ProductionController(IOrderRepository&, ISampleRepository&, IClock&);
+ReleaseController(IOrderRepository&, IClock&);
+MonitoringController(IOrderRepository&, ISampleRepository&);
 ```
 
 ### 앱 시작 화면 (SplashView)
@@ -453,25 +463,28 @@ SampleOrderSystem/
 │   ├── Sample.h
 │   ├── Order.h
 │   ├── OrderStatus.h
+│   ├── ISampleRepository.h
+│   ├── IOrderRepository.h
 │   ├── SampleRepository.h / .cpp
 │   └── OrderRepository.h / .cpp
 ├── Controller/
+│   ├── SampleController.h / .cpp
 │   ├── OrderController.h / .cpp
 │   ├── ProductionController.h / .cpp
 │   ├── ReleaseController.h / .cpp
-│   ├── DashboardController.h / .cpp
-│   └── SampleController.h / .cpp
+│   └── MonitoringController.h / .cpp
 ├── View/
 │   ├── SplashView.h / .cpp
 │   ├── MainView.h / .cpp
 │   ├── SampleView.h / .cpp
 │   ├── OrderView.h / .cpp
+│   ├── ApprovalView.h / .cpp
 │   ├── ProductionView.h / .cpp
 │   ├── ReleaseView.h / .cpp
-│   └── DashboardView.h / .cpp
+│   └── MonitoringView.h / .cpp
 └── Util/
     ├── IClock.h
-    ├── SystemClock.h
+    ├── SystemClock.h / .cpp
     ├── Constants.h
     ├── DummyDataGenerator.h / .cpp
     └── json.hpp
@@ -506,7 +519,7 @@ constexpr int    MONITOR_POLL_INTERVAL_SEC = 5;     // 모니터링 폴링 주�
 | `releaseOrder` | CONFIRMED → RELEASE + reservedQty 차감 |
 | `releaseOrder` | CONFIRMED 아닌 주문 출고 시도 → 실패 |
 | `reserveOrder` | 존재하지 않는 sampleId → 실패 |
-| `DashboardData` | REJECTED 주문이 집계에서 제외 |
+| `getOrderSummary` | REJECTED 주문이 집계에서 제외 |
 | `getProductionQueue` | FIFO 순서 보장 |
 | `estimatedTime` | `cycleTime(min/ea) × requiredProduction` 정확성 |
 
