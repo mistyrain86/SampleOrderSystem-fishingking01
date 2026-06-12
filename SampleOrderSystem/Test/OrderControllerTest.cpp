@@ -193,7 +193,8 @@ TEST_F(OrderControllerTest, ApproveOrder_CaseB_Producing) {
     EXPECT_EQ(capturedOrder.status, OrderStatus::PRODUCING);
 }
 
-// T5-10: 케이스 B — reservedQty 즉시 선점 확인 (10 + 200 = 210)
+// T5-10: 케이스 B — reservedQty 즉시 선점 확인 (기존 pureQty=30만 reserved로 이동)
+//         pureQty=30, 기존 reservedQty=10 → 10 + 30 = 40 (주문량 전체가 아닌 실보유분만)
 TEST_F(OrderControllerTest, ApproveOrder_CaseB_ReservedQtyImmediate) {
     Order  o = makeOrderO("ORD0001", "S-001", 200, OrderStatus::RESERVED);
     Sample s = makeSampleO("S-001", 30, 0.9, 0.5, 10);
@@ -205,7 +206,7 @@ TEST_F(OrderControllerTest, ApproveOrder_CaseB_ReservedQtyImmediate) {
     EXPECT_CALL(sampleRepo, update(_)).WillOnce(DoAll(SaveArg<0>(&capturedSample), Return(true)));
 
     ctrl.approveOrder("ORD0001");
-    EXPECT_EQ(capturedSample.reservedQuantity, 210);
+    EXPECT_EQ(capturedSample.reservedQuantity, 40); // 10(기존) + 30(pureQty) = 40
 }
 
 // T5-11: 케이스 B — pureQty 전량 소진 (이중 주문 방지)

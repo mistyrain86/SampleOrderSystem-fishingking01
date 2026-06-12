@@ -140,13 +140,13 @@ TEST_F(ProductionControllerTest, CompleteProduction_Success) {
     EXPECT_EQ(capturedOrder.status, OrderStatus::CONFIRMED);
 }
 
-// T6-6: completeProduction — excessProduction → pureQty 귀속
-//        qty=80, reqProd=100, shortage=50
-//        excess = reqProd - shortage = 100 - 50 = 50
-//        pureQty(승인 시 소진으로 0) + 50 = 50
+// T6-6: completeProduction — 실시간 적립 없이 완료
+//        qty=80, reqProd=100, shortage=50 → origReserved=30
+//        reservedQty=80 (30 원래 + 50 생산 적립) → totalCredited=50, remaining=50
+//        reservedRemaining=0 → toReserved=0, toPure=50 → pureQty=50
 TEST_F(ProductionControllerTest, CompleteProduction_ExcessToPureQty) {
     Order  o = makeOrderP("ORD0001", "S-001", 80, 100, OrderStatus::PRODUCING, 50);
-    Sample s = makeSampleP("S-001", 0, 0.9, 1.2, 80);  // pureQty=0: 승인 시 소진됨
+    Sample s = makeSampleP("S-001", 0, 0.9, 1.2, 80);  // pureQty=0, reservedQty=80
     EXPECT_CALL(orderRepo,  findById("ORD0001")).WillOnce(Return(o));
     EXPECT_CALL(sampleRepo, findById("S-001"))  .WillOnce(Return(s));
     EXPECT_CALL(orderRepo,  update(_)).WillOnce(Return(true));
@@ -156,7 +156,28 @@ TEST_F(ProductionControllerTest, CompleteProduction_ExcessToPureQty) {
         .WillOnce(DoAll(SaveArg<0>(&capturedSample), Return(true)));
 
     ctrl.completeProduction("ORD0001");
-    EXPECT_EQ(capturedSample.pureQuantity, 50); // 0 + (100 - 50)
+    EXPECT_EQ(capturedSample.pureQuantity, 50);
+}
+
+// T6-6b: completeProduction — 실시간 부분 적립 후 완료
+//         qty=80, reqProd=100, shortage=50 → origReserved=30
+//         20개 먼저 생산 적립됨: reservedQty=50 (30+20), pureQty=0
+//         remaining=80, reservedRemaining=30 → toReserved=30, toPure=50
+//         → reservedQty=80, pureQty=50
+TEST_F(ProductionControllerTest, CompleteProduction_WithPartialRealTimeCredit) {
+    Order  o = makeOrderP("ORD0001", "S-001", 80, 100, OrderStatus::PRODUCING, 50);
+    Sample s = makeSampleP("S-001", 0, 0.9, 1.2, 50); // pureQty=0, reservedQty=50 (20 생산 적립)
+    EXPECT_CALL(orderRepo,  findById("ORD0001")).WillOnce(Return(o));
+    EXPECT_CALL(sampleRepo, findById("S-001"))  .WillOnce(Return(s));
+    EXPECT_CALL(orderRepo,  update(_)).WillOnce(Return(true));
+
+    Sample capturedSample{};
+    EXPECT_CALL(sampleRepo, update(_))
+        .WillOnce(DoAll(SaveArg<0>(&capturedSample), Return(true)));
+
+    ctrl.completeProduction("ORD0001");
+    EXPECT_EQ(capturedSample.pureQuantity,     50);
+    EXPECT_EQ(capturedSample.reservedQuantity, 80);
 }
 
 // T6-7: completeProduction — reservedQty 불변
@@ -190,6 +211,73 @@ TEST_F(ProductionControllerTest, CompleteProduction_NotFound) {
     EXPECT_CALL(orderRepo, findById("ORD9999")).WillOnce(Return(std::nullopt));
 
     EXPECT_FALSE(ctrl.completeProduction("ORD9999"));
+}
+
+// ========================================================
+// creditRealTimeExcess 테스트
+// 시나리오: qty=30, shortage=22 → origReserved=8
+//   승인 직후 DB 상태: reservedQty=8(원래 pureQty 이동), pureQty=0
+// ========================================================
+
+// T6-10: producedSoFar=10 (shortage 미만) → 전부 reservedQty 적립
+//         productionCreditedToReserved=0, delta=10, toReserved=10, toPure=0
+//         → reservedQty=18, pureQty=0
+TEST_F(ProductionControllerTest, CreditRealTimeExcess_BelowShortageGoesToReserved) {
+    Order  o = makeOrderP("ORD0001", "S-001", 30, 32, OrderStatus::PRODUCING, 22);
+    Sample s = makeSampleP("S-001", 0, 0.9, 0.5, 8); // pureQty=0, reservedQty=8(원래 pureQty)
+    NiceMock<MockOrderRepoPC>  niceOrderRepo;
+    NiceMock<MockSampleRepoPC> niceSampleRepo;
+    FakeClockP fakeClock("2026-06-12 09:00:00");
+    ProductionController c(niceOrderRepo, niceSampleRepo, fakeClock);
+
+    EXPECT_CALL(niceOrderRepo,  findById("ORD0001")).WillOnce(Return(o));
+    EXPECT_CALL(niceSampleRepo, findById("S-001")).WillOnce(Return(s));
+
+    Sample captured{};
+    EXPECT_CALL(niceSampleRepo, update(_))
+        .WillOnce(DoAll(SaveArg<0>(&captured), Return(true)));
+
+    c.creditRealTimeExcess("ORD0001", 10);
+    EXPECT_EQ(captured.reservedQuantity, 18); // 8+10
+    EXPECT_EQ(captured.pureQuantity,      0);
+}
+
+// T6-11: producedSoFar=10, 이미 reservedQty=18(8+10 생산 적립) → delta=0 → update 안 함
+TEST_F(ProductionControllerTest, CreditRealTimeExcess_NoDeltaNoUpdate) {
+    Order  o = makeOrderP("ORD0001", "S-001", 30, 32, OrderStatus::PRODUCING, 22);
+    Sample s = makeSampleP("S-001", 0, 0.9, 0.5, 18); // 이미 10 생산분 적립됨
+    NiceMock<MockOrderRepoPC>  niceOrderRepo;
+    NiceMock<MockSampleRepoPC> niceSampleRepo;
+    FakeClockP fakeClock("2026-06-12 09:00:00");
+    ProductionController c(niceOrderRepo, niceSampleRepo, fakeClock);
+
+    EXPECT_CALL(niceOrderRepo,  findById("ORD0001")).WillOnce(Return(o));
+    EXPECT_CALL(niceSampleRepo, findById("S-001")).WillOnce(Return(s));
+    EXPECT_CALL(niceSampleRepo, update(_)).Times(0); // delta=0, 업데이트 없음
+
+    c.creditRealTimeExcess("ORD0001", 10);
+}
+
+// T6-12: 이미 4개 생산 적립(reservedQty=12) → producedSoFar=10 → delta=6 추가
+//         → reservedQty=18, pureQty=0
+TEST_F(ProductionControllerTest, CreditRealTimeExcess_IncrementalDelta) {
+    Order  o = makeOrderP("ORD0001", "S-001", 30, 32, OrderStatus::PRODUCING, 22);
+    Sample s = makeSampleP("S-001", 0, 0.9, 0.5, 12); // 8(원래)+4(생산) = 12
+    NiceMock<MockOrderRepoPC>  niceOrderRepo;
+    NiceMock<MockSampleRepoPC> niceSampleRepo;
+    FakeClockP fakeClock("2026-06-12 09:00:00");
+    ProductionController c(niceOrderRepo, niceSampleRepo, fakeClock);
+
+    EXPECT_CALL(niceOrderRepo,  findById("ORD0001")).WillOnce(Return(o));
+    EXPECT_CALL(niceSampleRepo, findById("S-001")).WillOnce(Return(s));
+
+    Sample captured{};
+    EXPECT_CALL(niceSampleRepo, update(_))
+        .WillOnce(DoAll(SaveArg<0>(&captured), Return(true)));
+
+    c.creditRealTimeExcess("ORD0001", 10); // delta=10-4=6
+    EXPECT_EQ(captured.reservedQuantity, 18); // 12+6
+    EXPECT_EQ(captured.pureQuantity,      0);
 }
 
 #endif
