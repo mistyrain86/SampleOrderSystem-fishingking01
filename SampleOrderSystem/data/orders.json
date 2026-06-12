@@ -1,0 +1,24 @@
+[
+  {
+    "customerName": "삼성전자",
+    "id": "ORD0001",
+    "orderedAt": "2026-06-12 16:35:10",
+    "productionShortage": 0,
+    "productionStartedAt": "",
+    "quantity": 30,
+    "requiredProduction": 0,
+    "sampleId": "S-003",
+    "status": "RELEASE"
+  },
+  {
+    "customerName": "하이닉스",
+    "id": "ORD0002",
+    "orderedAt": "2026-06-12 16:39:03",
+    "productionShortage": 30,
+    "productionStartedAt": "2026-06-12 16:39:15",
+    "quantity": 250,
+    "requiredProduction": 43,
+    "sampleId": "S-002",
+    "status": "PRODUCING"
+  }
+]

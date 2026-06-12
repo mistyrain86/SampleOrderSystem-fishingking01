@@ -9,10 +9,10 @@ int main(int argc, char** argv) {
 
 #else
 #include <windows.h>
+#include <filesystem>
 #include "Model/SampleRepository.h"
 #include "Model/OrderRepository.h"
 #include "Util/SystemClock.h"
-#include "Util/DummyDataGenerator.h"
 #include "Controller/SampleController.h"
 #include "Controller/OrderController.h"
 #include "Controller/ProductionController.h"
@@ -25,11 +25,11 @@ int main() {
     SetConsoleOutputCP(CP_UTF8);
     SetConsoleCP(CP_UTF8);
 
-    SampleRepository sampleRepo;
-    OrderRepository  orderRepo;
-    SystemClock      clock;
+    std::filesystem::create_directories("data");
 
-    DummyDataGenerator::populate(sampleRepo, clock);
+    SampleRepository sampleRepo("data/samples.json");
+    OrderRepository  orderRepo("data/orders.json");
+    SystemClock      clock;
 
     SampleController     sampleCtrl(sampleRepo, clock);
     OrderController      orderCtrl(orderRepo, sampleRepo, clock);

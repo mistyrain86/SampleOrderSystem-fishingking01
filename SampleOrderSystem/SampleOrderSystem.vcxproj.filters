@@ -60,9 +60,6 @@
     <ClCompile Include="Util\SystemClock.cpp">
       <Filter>Util</Filter>
     </ClCompile>
-    <ClCompile Include="Util\DummyDataGenerator.cpp">
-      <Filter>Util</Filter>
-    </ClCompile>
     <ClCompile Include="Controller\SampleController.cpp">
       <Filter>Controller</Filter>
     </ClCompile>
@@ -106,6 +103,9 @@
       <Filter>Controller</Filter>
     </ClCompile>
     <ClCompile Include="Test\MonitoringControllerTest.cpp">
+      <Filter>Test</Filter>
+    </ClCompile>
+    <ClCompile Include="Test\PersistenceTest.cpp">
       <Filter>Test</Filter>
     </ClCompile>
   </ItemGroup>
@@ -175,9 +175,6 @@
     </ClInclude>
     <ClInclude Include="Model\Order.h">
       <Filter>Model</Filter>
-    </ClInclude>
-    <ClInclude Include="Util\DummyDataGenerator.h">
-      <Filter>Util</Filter>
     </ClInclude>
     <ClInclude Include="Util\Constants.h">
       <Filter>Util</Filter>

@@ -1,0 +1,47 @@
+[
+  {
+    "cycleTime": 0.5,
+    "id": "S-001",
+    "name": "실리콘 웨이퍼-8인치",
+    "pureQuantity": 480,
+    "registeredAt": "2026-06-12 09:00:00",
+    "reservedQuantity": 0,
+    "yield": 0.92
+  },
+  {
+    "cycleTime": 0.3,
+    "id": "S-002",
+    "name": "GaN 에피택셜-4인치",
+    "pureQuantity": 0,
+    "registeredAt": "2026-06-12 09:00:00",
+    "reservedQuantity": 250,
+    "yield": 0.78
+  },
+  {
+    "cycleTime": 1.2,
+    "id": "S-003",
+    "name": "SiC 파워기판-6인치",
+    "pureQuantity": 0,
+    "registeredAt": "2026-06-12 09:00:00",
+    "reservedQuantity": 0,
+    "yield": 0.85
+  },
+  {
+    "cycleTime": 0.4,
+    "id": "S-004",
+    "name": "산화막 웨이퍼-SiO2",
+    "pureQuantity": 0,
+    "registeredAt": "2026-06-12 09:00:00",
+    "reservedQuantity": 0,
+    "yield": 0.9
+  },
+  {
+    "cycleTime": 0.2,
+    "id": "S-005",
+    "name": "포토레지스트-PR7",
+    "pureQuantity": 400,
+    "registeredAt": "2026-06-12 09:00:00",
+    "reservedQuantity": 0,
+    "yield": 0.95
+  }
+]

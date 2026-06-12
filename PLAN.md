@@ -473,8 +473,11 @@ JSON 파일 기반 데이터 영속성을 추가하고, 앱 재시작 후에도 
 
 ```
 samples.json: id, name, pureQuantity, reservedQuantity, yield, cycleTime, registeredAt
-orders.json:  id, sampleId, customerName, quantity, status, orderedAt, requiredProduction
+orders.json:  id, sampleId, customerName, quantity, status, orderedAt,
+              requiredProduction, productionShortage, productionStartedAt
 ```
+
+> `productionShortage` / `productionStartedAt` 은 Phase 6 버그 수정 시 추가된 필드.
 
 ### 검증 항목
 

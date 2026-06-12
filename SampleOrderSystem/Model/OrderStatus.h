@@ -19,3 +19,11 @@ inline std::string toString(OrderStatus status) {
         default:                     return "UNKNOWN";
     }
 }
+
+inline OrderStatus fromString(const std::string& s) {
+    if (s == "REJECTED")  return OrderStatus::REJECTED;
+    if (s == "PRODUCING") return OrderStatus::PRODUCING;
+    if (s == "CONFIRMED") return OrderStatus::CONFIRMED;
+    if (s == "RELEASE")   return OrderStatus::RELEASE;
+    return OrderStatus::RESERVED; // RESERVED 및 알 수 없는 값 기본값
+}

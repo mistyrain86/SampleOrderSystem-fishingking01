@@ -161,7 +161,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)'=='Debug'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="Util\SystemClock.cpp" />
-    <ClCompile Include="Util\DummyDataGenerator.cpp" />
     <ClCompile Include="Controller\SampleController.cpp" />
     <ClCompile Include="Controller\OrderController.cpp" />
     <ClCompile Include="Model\SampleRepository.cpp" />
@@ -193,6 +192,9 @@
     <ClCompile Include="Test\MonitoringControllerTest.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)'=='Release'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="Test\PersistenceTest.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)'=='Release'">true</ExcludedFromBuild>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="View\SplashView.h" />
@@ -217,7 +219,6 @@
     <ClInclude Include="Model\OrderStatus.h" />
     <ClInclude Include="Model\Sample.h" />
     <ClInclude Include="Model\Order.h" />
-    <ClInclude Include="Util\DummyDataGenerator.h" />
     <ClInclude Include="Util\Constants.h" />
     <ClInclude Include="Util\IClock.h" />
     <ClInclude Include="Util\SystemClock.h" />
