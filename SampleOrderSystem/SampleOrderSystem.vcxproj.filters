@@ -22,6 +22,9 @@
     <Filter Include="Model">
       <UniqueIdentifier>{D3E4F5A6-B7C8-9012-DEF0-123456789012}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Controller">
+      <UniqueIdentifier>{F5A6B7C8-D9E0-1234-F012-345678901234}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Test">
       <UniqueIdentifier>{E4F5A6B7-C8D9-0123-EF01-234567890123}</UniqueIdentifier>
     </Filter>
@@ -57,6 +60,12 @@
     <ClCompile Include="Util\SystemClock.cpp">
       <Filter>Util</Filter>
     </ClCompile>
+    <ClCompile Include="Util\DummyDataGenerator.cpp">
+      <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="Controller\SampleController.cpp">
+      <Filter>Controller</Filter>
+    </ClCompile>
     <ClCompile Include="Model\SampleRepository.cpp">
       <Filter>Model</Filter>
     </ClCompile>
@@ -70,6 +79,9 @@
       <Filter>Test</Filter>
     </ClCompile>
     <ClCompile Include="Test\RepositoryTest.cpp">
+      <Filter>Test</Filter>
+    </ClCompile>
+    <ClCompile Include="Test\SampleControllerTest.cpp">
       <Filter>Test</Filter>
     </ClCompile>
   </ItemGroup>
@@ -98,6 +110,9 @@
     <ClInclude Include="View\ReleaseView.h">
       <Filter>View</Filter>
     </ClInclude>
+    <ClInclude Include="Controller\SampleController.h">
+      <Filter>Controller</Filter>
+    </ClInclude>
     <ClInclude Include="Model\ISampleRepository.h">
       <Filter>Model</Filter>
     </ClInclude>
@@ -118,6 +133,9 @@
     </ClInclude>
     <ClInclude Include="Model\Order.h">
       <Filter>Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\DummyDataGenerator.h">
+      <Filter>Util</Filter>
     </ClInclude>
     <ClInclude Include="Util\Constants.h">
       <Filter>Util</Filter>
